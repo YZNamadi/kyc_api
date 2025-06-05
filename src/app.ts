@@ -2,13 +2,11 @@ import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import helmet from 'helmet';
-import path from 'path';
-import swaggerUi from 'swagger-ui-express';
-import YAML from 'yamljs';
 import { errorHandler, notFoundHandler } from './utils/errorHandler';
-import { logHttpRequest, logger } from './utils/logger';
+import { stream, logger } from './utils/logger';
 import { checkRedisConnection } from './config/redis';
 import { setupRoutes } from './routes';
+import { specs, swaggerUi } from './config/swagger';
 
 const app = express();
 
@@ -17,18 +15,17 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan('dev'));
-app.use(logHttpRequest);
-
-// Static files (for uploaded documents)
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-
-// API routes
-setupRoutes(app);
+app.use(morgan('combined', { stream }));
 
 // Swagger docs
-const swaggerDocument = YAML.load(path.join(__dirname, '../docs/swagger.yaml'));
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'KYC API Documentation'
+}));
+
+// Routes
+setupRoutes(app);
 
 // Health check
 app.get('/api/health', async (_req, res) => {
@@ -51,7 +48,7 @@ app.get('/api/health', async (_req, res) => {
   }
 });
 
-// Not found and error handlers
+// Error handling
 app.use(notFoundHandler);
 app.use(errorHandler);
 
