@@ -64,6 +64,13 @@ class RiskAssessment extends Model<RiskAssessmentAttributes, RiskAssessmentCreat
   public assessedBy!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
+  // Add associate method
+  public static associate(models: any) {
+    RiskAssessment.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+    RiskAssessment.belongsTo(models.User, { foreignKey: 'assessedBy', as: 'assessor' });
+    RiskAssessment.belongsTo(models.KYCVerification, { foreignKey: 'kycVerificationId', as: 'kycVerification' });
+  }
 }
 
 RiskAssessment.init(

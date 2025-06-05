@@ -1,6 +1,6 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import sequelize from '../config/database';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 // User roles
 export enum UserRole {
@@ -13,7 +13,8 @@ export enum UserRole {
 export enum UserStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
-  SUSPENDED = 'suspended'
+  SUSPENDED = 'suspended',
+  BLOCKED = 'blocked'
 }
 
 // User attributes interface
@@ -44,6 +45,16 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public lastLoginAt!: Date;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
+  // Add associate method
+  public static associate(models: any) {
+    User.hasMany(models.KYCVerification, { foreignKey: 'userId', as: 'kycVerifications' });
+    User.hasMany(models.Document, { foreignKey: 'userId', as: 'documents' });
+    User.hasMany(models.RiskAssessment, { foreignKey: 'userId', as: 'riskAssessments' });
+    User.hasMany(models.KYCVerification, { foreignKey: 'verifiedBy', as: 'verifiedKYC' });
+    User.hasMany(models.Document, { foreignKey: 'verifiedBy', as: 'verifiedDocuments' });
+    User.hasMany(models.RiskAssessment, { foreignKey: 'assessedBy', as: 'assessedRisks' });
+  }
 
   // Method to compare password
   public async comparePassword(candidatePassword: string): Promise<boolean> {
@@ -106,6 +117,18 @@ User.init(
     sequelize,
     tableName: 'users',
     timestamps: true,
+    indexes: [
+      {
+        unique: true,
+        fields: ['email'],
+      },
+      {
+        fields: ['role'],
+      },
+      {
+        fields: ['status'],
+      },
+    ],
     hooks: {
       beforeCreate: async (user: User) => {
         if (user.password) {

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/errorHandler';
-import Document, { DocumentStatus, DocumentType } from '../models/Document';
+import { Document, DocumentStatus, DocumentType } from '../models';
 import { AppError } from '../utils/errorHandler';
 
 // Upload a document

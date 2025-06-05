@@ -2,24 +2,22 @@ import User from './User';
 import KYCVerification from './KYCVerification';
 import Document from './Document';
 import RiskAssessment from './RiskAssessment';
+import sequelize from '../config/database';
 
-// Define model relationships
-User.hasMany(KYCVerification, { foreignKey: 'userId', as: 'kycVerifications' });
-User.hasMany(Document, { foreignKey: 'userId', as: 'documents' });
-User.hasMany(RiskAssessment, { foreignKey: 'userId', as: 'riskAssessments' });
+// Initialize models
+const models = {
+  User,
+  KYCVerification,
+  Document,
+  RiskAssessment
+};
 
-KYCVerification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
-KYCVerification.belongsTo(User, { foreignKey: 'verifiedBy', as: 'verifier' });
-KYCVerification.hasMany(Document, { foreignKey: 'kycVerificationId', as: 'documents' });
-KYCVerification.hasMany(RiskAssessment, { foreignKey: 'kycVerificationId', as: 'riskAssessments' });
-
-Document.belongsTo(User, { foreignKey: 'userId', as: 'user' });
-Document.belongsTo(KYCVerification, { foreignKey: 'kycVerificationId', as: 'kycVerification' });
-Document.belongsTo(User, { foreignKey: 'verifiedBy', as: 'verifier' });
-
-RiskAssessment.belongsTo(User, { foreignKey: 'userId', as: 'user' });
-RiskAssessment.belongsTo(KYCVerification, { foreignKey: 'kycVerificationId', as: 'kycVerification' });
-RiskAssessment.belongsTo(User, { foreignKey: 'assessedBy', as: 'assessor' });
+// Initialize associations
+Object.values(models).forEach((model: any) => {
+  if (model.associate) {
+    model.associate(models);
+  }
+});
 
 // Export models
 export {
@@ -33,4 +31,7 @@ export {
 export * from './User';
 export * from './KYCVerification';
 export * from './Document';
-export * from './RiskAssessment'; 
+export * from './RiskAssessment';
+
+// Export sequelize instance
+export { sequelize }; 

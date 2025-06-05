@@ -88,6 +88,7 @@ export const schemas = {
   // Risk Assessment schemas
   riskAssessment: {
     create: Joi.object({
+      kycVerificationId: Joi.string().uuid().required(),
       overallRiskScore: Joi.number().min(0).max(100).required(),
       riskLevel: Joi.string().valid('low', 'medium', 'high', 'critical').required(),
       riskFactors: Joi.array().items(

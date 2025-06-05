@@ -8,10 +8,7 @@ import YAML from 'yamljs';
 import { errorHandler, notFoundHandler } from './utils/errorHandler';
 import { logHttpRequest, logger } from './utils/logger';
 import { checkRedisConnection } from './config/redis';
-import userRoutes from './routes/userRoutes';
-import kycRoutes from './routes/kycRoutes';
-import documentRoutes from './routes/documentRoutes';
-import riskAssessmentRoutes from './routes/riskAssessmentRoutes';
+import { setupRoutes } from './routes';
 
 const app = express();
 
@@ -27,10 +24,7 @@ app.use(logHttpRequest);
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // API routes
-app.use('/api/v1/users', userRoutes);
-app.use('/api/v1/kyc', kycRoutes);
-app.use('/api/v1/documents', documentRoutes);
-app.use('/api/v1/risk-assessments', riskAssessmentRoutes);
+setupRoutes(app);
 
 // Swagger docs
 const swaggerDocument = YAML.load(path.join(__dirname, '../docs/swagger.yaml'));

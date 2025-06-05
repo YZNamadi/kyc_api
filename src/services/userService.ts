@@ -1,5 +1,4 @@
-import { UserRole, UserStatus } from '../models/User';
-import User from '../models/User';
+import { UserRole, UserStatus, User } from '../models';
 import { Op } from 'sequelize';
 import { AppError } from '../utils/errorHandler';
 import { generateToken } from '../middleware/auth';

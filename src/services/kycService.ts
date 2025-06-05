@@ -1,12 +1,9 @@
 import { KYCData } from '../types/kyc';
 import { VerificationResult, RiskScore } from '../types/kyc';
 import { riskScoringConfig } from '../config/riskScoring';
-import KYCVerification, { KYCStatus, KYCType } from '../models/KYCVerification';
+import { KYCVerification, KYCStatus, KYCType, Document, DocumentType, DocumentStatus, RiskAssessment, User } from '../models';
 import { AppError } from '../utils/errorHandler';
 import { logger } from '../utils/logger';
-import Document, { DocumentType, DocumentStatus } from '../models/Document';
-import RiskAssessment from '../models/RiskAssessment';
-import User from '../models/User';
 import { Op } from 'sequelize';
 
 export class KYCService {
@@ -334,8 +331,16 @@ export class KYCService {
     const { count, rows } = await KYCVerification.findAndCountAll({
       where: { userId },
       include: [
-        { model: Document, as: 'documents' },
-        { model: RiskAssessment, as: 'riskAssessments' },
+        { 
+          model: Document, 
+          as: 'documents',
+          required: false 
+        },
+        { 
+          model: RiskAssessment, 
+          as: 'riskAssessments',
+          required: false 
+        }
       ],
       limit,
       offset,
@@ -370,9 +375,21 @@ export class KYCService {
     const { count, rows } = await KYCVerification.findAndCountAll({
       where,
       include: [
-        { model: User, as: 'user' },
-        { model: Document, as: 'documents' },
-        { model: RiskAssessment, as: 'riskAssessments' },
+        { 
+          model: User, 
+          as: 'user',
+          required: false 
+        },
+        { 
+          model: Document, 
+          as: 'documents',
+          required: false 
+        },
+        { 
+          model: RiskAssessment, 
+          as: 'riskAssessments',
+          required: false 
+        }
       ],
       limit,
       offset,

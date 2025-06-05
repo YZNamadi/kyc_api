@@ -89,6 +89,14 @@ class KYCVerification extends Model<KYCVerificationAttributes, KYCVerificationCr
   public verifiedAt!: Date;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
+  // Add associate method
+  public static associate(models: any) {
+    KYCVerification.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+    KYCVerification.belongsTo(models.User, { foreignKey: 'verifiedBy', as: 'verifier' });
+    KYCVerification.hasMany(models.Document, { foreignKey: 'kycVerificationId', as: 'documents' });
+    KYCVerification.hasMany(models.RiskAssessment, { foreignKey: 'kycVerificationId', as: 'riskAssessments' });
+  }
 }
 
 KYCVerification.init(

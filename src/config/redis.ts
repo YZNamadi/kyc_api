@@ -10,20 +10,17 @@ const redisConfig = {
     rejectUnauthorized: false
   } : undefined,
   retryStrategy: (times: number) => {
-    const delay = Math.min(times * 1000, 10000);
+    const delay = Math.min(times * 1000, 30000); // Max 30 second delay
     logger.info(`Redis retry attempt ${times} with delay ${delay}ms`);
     return delay;
   },
-  maxRetriesPerRequest: 3,
+  maxRetriesPerRequest: 10, // Increased from 3 to 10
   enableOfflineQueue: true,
-  connectTimeout: 10000, // 10 seconds
-  lazyConnect: false, // Don't connect immediately
+  connectTimeout: 30000, // Increased to 30 seconds
+  lazyConnect: true, // Changed to true to prevent immediate connection
   reconnectOnError: (err: Error) => {
-    const targetError = 'READONLY';
-    if (err.message.includes(targetError)) {
-      return true;
-    }
-    return false;
+    logger.error('Redis reconnect on error:', err.message);
+    return true; // Always try to reconnect
   }
 };
 

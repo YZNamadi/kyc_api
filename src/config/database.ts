@@ -1,18 +1,14 @@
 import { Sequelize } from 'sequelize';
+import { config } from 'dotenv';
 import { logger } from '../utils/logger';
 
-// Log database configuration
-logger.info('Database configuration:', {
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  username: process.env.DB_USER,
-  // Don't log the password for security reasons
-});
+config();
+
+const isProduction = process.env.NODE_ENV === 'production';
 
 const sequelize = new Sequelize({
   dialect: 'mysql',
-  host: process.env.DB_HOST || 'mysql',
+  host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT || '3306'),
   database: process.env.DB_NAME || 'kyc_db',
   username: process.env.DB_USER || 'root',
@@ -24,45 +20,35 @@ const sequelize = new Sequelize({
     acquire: 30000,
     idle: 10000
   },
-  retry: {
-    max: 5,
-    match: [
-      /SequelizeConnectionError/,
-      /SequelizeConnectionRefusedError/,
-      /SequelizeHostNotFoundError/,
-      /SequelizeHostNotReachableError/,
-      /SequelizeInvalidConnectionError/,
-      /SequelizeConnectionTimedOutError/,
-      /TimeoutError/
-    ],
-    backoffBase: 1000,
-    backoffExponent: 1.5,
-  },
-  dialectOptions: {
-    ssl: process.env.NODE_ENV === 'production' ? {
+  dialectOptions: isProduction ? {
+    ssl: {
       require: true,
       rejectUnauthorized: false
-    } : undefined
-  }
+    }
+  } : {}
 });
 
+// Test database connection
 export const testConnection = async () => {
   try {
     await sequelize.authenticate();
     logger.info('Database connection has been established successfully.');
+    return true;
   } catch (error) {
-    logger.error('Database connection failed:', error);
-    throw error;
+    logger.error('Unable to connect to the database:', error);
+    return false;
   }
 };
 
-export const syncDatabase = async () => {
+// Sync database models
+export const syncDatabase = async (force: boolean = false) => {
   try {
-    await sequelize.sync();
+    await sequelize.sync({ force });
     logger.info('Database synchronized successfully.');
+    return true;
   } catch (error) {
-    logger.error('Database synchronization failed:', error);
-    throw error;
+    logger.error('Error synchronizing database:', error);
+    return false;
   }
 };
 

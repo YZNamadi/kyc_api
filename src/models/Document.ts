@@ -74,6 +74,13 @@ class Document extends Model<DocumentAttributes, DocumentCreationAttributes> imp
   public verifiedAt!: Date;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
+  // Add associate method
+  public static associate(models: any) {
+    Document.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
+    Document.belongsTo(models.User, { foreignKey: 'verifiedBy', as: 'verifier' });
+    Document.belongsTo(models.KYCVerification, { foreignKey: 'kycVerificationId', as: 'kycVerification' });
+  }
 }
 
 Document.init(

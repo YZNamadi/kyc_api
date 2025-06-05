@@ -1,53 +1,58 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../utils/errorHandler';
-import RiskAssessment, { RiskLevel, RiskFactorType } from '../models/RiskAssessment';
+import { RiskAssessment, RiskLevel, RiskFactorType } from '../models';
 import { AppError } from '../utils/errorHandler';
 import { Op } from 'sequelize';
 
 // Create a new risk assessment
 export const createAssessment = asyncHandler(async (req: Request, res: Response) => {
-  const userId = req.user!.id;
-  const { 
-    kycVerificationId,
-    overallRiskScore,
-    riskLevel,
-    riskFactors,
-    assessmentDate,
-    expiryDate,
-    assessmentNotes 
-  } = req.body;
+  try {
+    const userId = req.user!.id;
+    const { 
+      kycVerificationId,
+      overallRiskScore,
+      riskLevel,
+      riskFactors,
+      assessmentDate,
+      expiryDate,
+      assessmentNotes 
+    } = req.body;
 
-  // Validate risk level
-  if (!Object.values(RiskLevel).includes(riskLevel)) {
-    throw new AppError('Invalid risk level', 400);
-  }
-
-  // Validate risk factors
-  if (!Array.isArray(riskFactors) || riskFactors.length === 0) {
-    throw new AppError('At least one risk factor is required', 400);
-  }
-
-  riskFactors.forEach((factor: any) => {
-    if (!factor.type || !factor.description || !factor.score || !factor.details) {
-      throw new AppError('Invalid risk factor structure', 400);
+    // Validate risk level
+    if (!Object.values(RiskLevel).includes(riskLevel)) {
+      throw new AppError('Invalid risk level', 400);
     }
-    if (!Object.values(RiskFactorType).includes(factor.type)) {
-      throw new AppError(`Invalid risk factor type: ${factor.type}`, 400);
+
+    // Validate risk factors
+    if (!Array.isArray(riskFactors) || riskFactors.length === 0) {
+      throw new AppError('At least one risk factor is required', 400);
     }
-  });
 
-  const assessment = await RiskAssessment.create({
-    userId,
-    kycVerificationId,
-    overallRiskScore,
-    riskLevel,
-    riskFactors,
-    assessmentDate: assessmentDate || new Date(),
-    expiryDate,
-    assessmentNotes
-  });
+    riskFactors.forEach((factor: any) => {
+      if (!factor.type || !factor.description || !factor.score || !factor.details) {
+        throw new AppError('Invalid risk factor structure', 400);
+      }
+      if (!Object.values(RiskFactorType).includes(factor.type)) {
+        throw new AppError(`Invalid risk factor type: ${factor.type}`, 400);
+      }
+    });
 
-  res.status(201).json({ assessment });
+    const assessment = await RiskAssessment.create({
+      userId,
+      kycVerificationId,
+      overallRiskScore,
+      riskLevel,
+      riskFactors,
+      assessmentDate: assessmentDate || new Date(),
+      expiryDate,
+      assessmentNotes
+    });
+
+    res.status(201).json({ assessment });
+  } catch (error) {
+    console.error('RiskAssessment creation error:', error);
+    res.status(500).json({ error: error.message || error });
+  }
 });
 
 // Get risk assessment by ID
