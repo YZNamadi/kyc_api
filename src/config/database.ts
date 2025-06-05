@@ -11,6 +11,7 @@ const dbUrl = process.env.DATABASE_URL;
 let dbConfig;
 
 if (dbUrl) {
+  logger.info('Using DATABASE_URL for configuration');
   // Parse the DATABASE_URL
   const matches = dbUrl.match(/mysql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/);
   if (matches) {
@@ -21,8 +22,23 @@ if (dbUrl) {
       port: parseInt(matches[4]),
       database: matches[5],
     };
+    logger.info('Successfully parsed DATABASE_URL');
+  } else {
+    logger.error('Failed to parse DATABASE_URL');
   }
+} else {
+  logger.info('Using individual database environment variables');
 }
+
+// Log the final configuration (without sensitive data)
+logger.info('Database configuration:', {
+  host: dbConfig?.host || process.env.DB_HOST || 'localhost',
+  port: dbConfig?.port || parseInt(process.env.DB_PORT || '3306'),
+  database: dbConfig?.database || process.env.DB_NAME || 'kyc_db',
+  username: dbConfig?.username || process.env.DB_USER || 'root',
+  isProduction,
+  hasSSL: isProduction
+});
 
 const sequelize = new Sequelize({
   dialect: 'mysql',

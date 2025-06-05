@@ -6,16 +6,37 @@ const redisUrl = process.env.REDIS_URL;
 let redisConfig;
 
 if (redisUrl) {
-  // Parse the REDIS_URL
-  const matches = redisUrl.match(/redis:\/\/([^:]+):([^@]+)@([^:]+):(\d+)/);
-  if (matches) {
+  logger.info('Using REDIS_URL for configuration');
+  try {
+    // Handle both formats:
+    // 1. redis://:password@host:port
+    // 2. redis://host:port
+    const url = new URL(redisUrl);
     redisConfig = {
-      host: matches[3],
-      port: parseInt(matches[4]),
-      password: matches[2],
+      host: url.hostname,
+      port: parseInt(url.port || '6379'),
+      password: url.password || undefined,
     };
+    logger.info('Successfully parsed REDIS_URL', {
+      host: redisConfig.host,
+      port: redisConfig.port,
+      hasPassword: !!redisConfig.password
+    });
+  } catch (error) {
+    logger.error('Failed to parse REDIS_URL:', error);
   }
+} else {
+  logger.info('Using individual Redis environment variables');
 }
+
+// Log the final configuration (without sensitive data)
+logger.info('Redis configuration:', {
+  host: redisConfig?.host || process.env.REDIS_HOST || 'redis',
+  port: redisConfig?.port || parseInt(process.env.REDIS_PORT || '6379'),
+  hasPassword: !!(redisConfig?.password || process.env.REDIS_PASSWORD),
+  isProduction: process.env.NODE_ENV === 'production',
+  hasTLS: process.env.NODE_ENV === 'production'
+});
 
 // Redis configuration
 const config = {
@@ -45,7 +66,7 @@ const redisClient = new Redis(config);
 
 // Handle Redis connection events
 redisClient.on('connect', () => {
-  logger.info('Redis client connected');
+  logger.info('Redis client connected successfully');
 });
 
 redisClient.on('error', (err: Error) => {
@@ -68,6 +89,7 @@ redisClient.on('end', () => {
 export const checkRedisConnection = async (): Promise<boolean> => {
   try {
     await redisClient.ping();
+    logger.info('Redis connection check successful');
     return true;
   } catch (error) {
     logger.error('Redis connection check failed:', error);
