@@ -1,36 +1,33 @@
-import { Router } from 'express';
+import express from 'express';
 import { checkRedisConnection } from '../config/redis';
 import { testConnection } from '../config/database';
 import { logger } from '../utils/logger';
 
-const router = Router();
+const router = express.Router();
 
-router.get('/health', async (_, res) => {
+router.get('/', async (_req, res) => {
   try {
-    // Check database connection
-    await testConnection();
-    
-    // Check Redis connection
-    const redisConnected = await checkRedisConnection();
-    
-    if (!redisConnected) {
-      throw new Error('Redis connection failed');
-    }
-    
-    res.status(200).json({
-      status: 'healthy',
+    const [redisStatus, dbStatus] = await Promise.all([
+      checkRedisConnection(),
+      testConnection()
+    ]);
+
+    res.json({
+      status: 'ok',
+      version: '1.0.0',
       timestamp: new Date().toISOString(),
       services: {
-        database: 'connected',
-        redis: 'connected'
-      }
+        database: dbStatus ? 'connected' : 'disconnected',
+        redis: redisStatus ? 'connected' : 'disconnected'
+      },
+      environment: process.env.NODE_ENV || 'development'
     });
   } catch (error) {
     logger.error('Health check failed:', error);
-    res.status(503).json({
-      status: 'unhealthy',
-      timestamp: new Date().toISOString(),
-      error: error instanceof Error ? error.message : 'Unknown error'
+    res.status(500).json({
+      status: 'error',
+      message: 'Health check failed',
+      timestamp: new Date().toISOString()
     });
   }
 });

@@ -1,5 +1,6 @@
 import express from 'express';
 import { config } from 'dotenv';
+import cors from 'cors';
 import { testConnection, syncDatabase } from './config/database';
 import { logger } from './utils/logger';
 import healthRouter from './routes/health';
@@ -12,11 +13,28 @@ config();
 const app = express();
 
 // Middleware
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://kyc-api-pf6f.onrender.com', 'http://localhost:3000']
+    : '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// API base route
+app.get('/api/v1', (_req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'KYC API is running',
+    version: '1.0.0',
+    documentation: '/api/docs'
+  });
+});
+
 // Routes
-app.use('/', healthRouter);
+app.use('/api/v1/health', healthRouter);
 setupRoutes(app);
 
 // Error handling
@@ -42,6 +60,8 @@ const startServer = async () => {
     // Start server
     app.listen(PORT, () => {
       logger.info(`Server is running on port ${PORT}`);
+      logger.info(`API Documentation available at: /api/docs`);
+      logger.info(`Health check available at: /api/v1/health`);
     });
   } catch (error) {
     logger.error('Failed to start server:', error);
