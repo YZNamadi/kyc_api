@@ -24,6 +24,20 @@ const sequelize = new Sequelize({
     acquire: 30000,
     idle: 10000
   },
+  retry: {
+    max: 5,
+    match: [
+      /SequelizeConnectionError/,
+      /SequelizeConnectionRefusedError/,
+      /SequelizeHostNotFoundError/,
+      /SequelizeHostNotReachableError/,
+      /SequelizeInvalidConnectionError/,
+      /SequelizeConnectionTimedOutError/,
+      /TimeoutError/
+    ],
+    backoffBase: 1000,
+    backoffExponent: 1.5,
+  },
   dialectOptions: {
     ssl: process.env.NODE_ENV === 'production' ? {
       require: true,

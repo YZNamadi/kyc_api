@@ -10,13 +10,21 @@ const redisConfig = {
     rejectUnauthorized: false
   } : undefined,
   retryStrategy: (times: number) => {
-    const delay = Math.min(times * 50, 2000);
+    const delay = Math.min(times * 1000, 10000);
+    logger.info(`Redis retry attempt ${times} with delay ${delay}ms`);
     return delay;
   },
   maxRetriesPerRequest: 3,
   enableOfflineQueue: true,
   connectTimeout: 10000, // 10 seconds
   lazyConnect: false, // Don't connect immediately
+  reconnectOnError: (err: Error) => {
+    const targetError = 'READONLY';
+    if (err.message.includes(targetError)) {
+      return true;
+    }
+    return false;
+  }
 };
 
 // Create Redis client
@@ -37,6 +45,10 @@ redisClient.on('ready', () => {
 
 redisClient.on('reconnecting', () => {
   logger.info('Redis client reconnecting');
+});
+
+redisClient.on('end', () => {
+  logger.info('Redis client connection ended');
 });
 
 // Function to check Redis connection
