@@ -1,4 +1,5 @@
-import { KYCData, VerificationResult, RiskScore } from '../types/kyc';
+import { KYCData } from '../types/kyc';
+import { VerificationResult, RiskScore } from '../types/kyc';
 import { riskScoringConfig } from '../config/riskScoring';
 import KYCVerification, { KYCStatus, KYCType } from '../models/KYCVerification';
 import { AppError } from '../utils/errorHandler';
