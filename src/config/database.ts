@@ -13,7 +13,7 @@ let dbConfig;
 if (dbUrl) {
   logger.info('Using DATABASE_URL for configuration');
   // Parse the DATABASE_URL
-  const matches = dbUrl.match(/mysql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/);
+  const matches = dbUrl.match(/postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/);
   if (matches) {
     dbConfig = {
       username: matches[1],
@@ -33,19 +33,19 @@ if (dbUrl) {
 // Log the final configuration (without sensitive data)
 logger.info('Database configuration:', {
   host: dbConfig?.host || process.env.DB_HOST || 'localhost',
-  port: dbConfig?.port || parseInt(process.env.DB_PORT || '3306'),
+  port: dbConfig?.port || parseInt(process.env.DB_PORT || '5432'),
   database: dbConfig?.database || process.env.DB_NAME || 'kyc_db',
-  username: dbConfig?.username || process.env.DB_USER || 'root',
+  username: dbConfig?.username || process.env.DB_USER || 'postgres',
   isProduction,
   hasSSL: isProduction
 });
 
 const sequelize = new Sequelize({
-  dialect: 'mysql',
+  dialect: 'postgres',
   host: dbConfig?.host || process.env.DB_HOST || 'localhost',
-  port: dbConfig?.port || parseInt(process.env.DB_PORT || '3306'),
+  port: dbConfig?.port || parseInt(process.env.DB_PORT || '5432'),
   database: dbConfig?.database || process.env.DB_NAME || 'kyc_db',
-  username: dbConfig?.username || process.env.DB_USER || 'root',
+  username: dbConfig?.username || process.env.DB_USER || 'postgres',
   password: dbConfig?.password || process.env.DB_PASSWORD || '',
   logging: (msg) => logger.debug(msg),
   pool: {
