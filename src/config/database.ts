@@ -1,62 +1,48 @@
 import { Sequelize } from 'sequelize';
-import { config } from 'dotenv';
 import { logger } from '../utils/logger';
 
-// Load environment variables
-config();
+// Log database configuration
+logger.info('Database configuration:', {
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  database: process.env.DB_NAME,
+  username: process.env.DB_USER,
+  // Don't log the password for security reasons
+});
 
-// Database configuration
-const dbConfig = {
+const sequelize = new Sequelize({
+  dialect: 'mysql',
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT || '3306'),
   database: process.env.DB_NAME || 'kyc_db',
   username: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  dialect: 'mysql' as const,
-  logging: false,
+  logging: (msg) => logger.debug(msg),
   pool: {
     max: 5,
     min: 0,
     acquire: 30000,
-    idle: 10000,
-  },
-};
-
-// Create Sequelize instance
-const sequelize = new Sequelize(
-  dbConfig.database,
-  dbConfig.username,
-  dbConfig.password,
-  {
-    host: dbConfig.host,
-    port: dbConfig.port,
-    dialect: dbConfig.dialect,
-    logging: false,
-    pool: dbConfig.pool,
+    idle: 10000
   }
-);
+});
 
-// Test database connection
 export const testConnection = async () => {
   try {
     await sequelize.authenticate();
-    logger.info('Database connection established successfully.');
-    return true;
+    logger.info('Database connection has been established successfully.');
   } catch (error) {
     logger.error('Database connection failed:', error);
-    return false;
+    throw error;
   }
 };
 
-// Sync database
-export const syncDatabase = async (force = false) => {
+export const syncDatabase = async () => {
   try {
-    await sequelize.sync({ force });
+    await sequelize.sync();
     logger.info('Database synchronized successfully.');
-    return true;
   } catch (error) {
     logger.error('Database synchronization failed:', error);
-    return false;
+    throw error;
   }
 };
 

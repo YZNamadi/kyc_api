@@ -1,3 +1,6 @@
+import { config } from 'dotenv';
+config();
+
 import './models/index';
 import app from './app';
 import { testConnection, syncDatabase } from './config/database';

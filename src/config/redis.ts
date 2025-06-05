@@ -3,9 +3,9 @@ import { logger } from '../utils/logger';
 
 // Redis configuration
 const redisConfig = {
-  host: process.env.REDIS_HOST || '127.0.0.1',
+  host: process.env.REDIS_HOST || 'localhost',
   port: parseInt(process.env.REDIS_PORT || '6379'),
-  password: process.env.REDIS_PASSWORD,
+  password: process.env.REDIS_PASSWORD || undefined,
   retryStrategy: (times: number) => {
     const delay = Math.min(times * 50, 2000);
     return delay;
@@ -57,4 +57,4 @@ export const closeRedisConnection = async (): Promise<void> => {
   }
 };
 
-export { redisClient }; 
+export default redisClient; 
