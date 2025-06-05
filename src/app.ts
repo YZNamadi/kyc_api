@@ -6,7 +6,7 @@ import { errorHandler, notFoundHandler } from './utils/errorHandler';
 import { stream, logger } from './utils/logger';
 import { checkRedisConnection } from './config/redis';
 import { setupRoutes } from './routes';
-import { specs, swaggerUi } from './config/swagger';
+import { specs, swaggerUi, swaggerUiOptions } from './config/swagger';
 
 const app = express();
 
@@ -38,17 +38,7 @@ app.get('/api/v1', (_req, res) => {
 
 // Swagger docs
 app.use('/api/docs', swaggerUi.serve);
-app.get('/api/docs', swaggerUi.setup(specs, {
-  explorer: true,
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'KYC API Documentation',
-  swaggerOptions: {
-    persistAuthorization: true,
-    docExpansion: 'list',
-    filter: true,
-    showCommonExtensions: true
-  }
-}));
+app.get('/api/docs', swaggerUi.setup(specs, swaggerUiOptions));
 
 // Routes
 setupRoutes(app);
