@@ -1,11 +1,27 @@
 import Redis from 'ioredis';
 import { logger } from '../utils/logger';
 
+// Parse Redis URL if provided (Render provides REDIS_URL)
+const redisUrl = process.env.REDIS_URL;
+let redisConfig;
+
+if (redisUrl) {
+  // Parse the REDIS_URL
+  const matches = redisUrl.match(/redis:\/\/([^:]+):([^@]+)@([^:]+):(\d+)/);
+  if (matches) {
+    redisConfig = {
+      host: matches[3],
+      port: parseInt(matches[4]),
+      password: matches[2],
+    };
+  }
+}
+
 // Redis configuration
-const redisConfig = {
-  host: process.env.REDIS_HOST || 'redis',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  password: process.env.REDIS_PASSWORD || undefined,
+const config = {
+  host: redisConfig?.host || process.env.REDIS_HOST || 'redis',
+  port: redisConfig?.port || parseInt(process.env.REDIS_PORT || '6379'),
+  password: redisConfig?.password || process.env.REDIS_PASSWORD || undefined,
   tls: process.env.NODE_ENV === 'production' ? {
     rejectUnauthorized: false
   } : undefined,
@@ -14,18 +30,18 @@ const redisConfig = {
     logger.info(`Redis retry attempt ${times} with delay ${delay}ms`);
     return delay;
   },
-  maxRetriesPerRequest: 10, // Increased from 3 to 10
+  maxRetriesPerRequest: 10,
   enableOfflineQueue: true,
-  connectTimeout: 30000, // Increased to 30 seconds
-  lazyConnect: true, // Changed to true to prevent immediate connection
+  connectTimeout: 30000,
+  lazyConnect: true,
   reconnectOnError: (err: Error) => {
     logger.error('Redis reconnect on error:', err.message);
-    return true; // Always try to reconnect
+    return true;
   }
 };
 
 // Create Redis client
-const redisClient = new Redis(redisConfig);
+const redisClient = new Redis(config);
 
 // Handle Redis connection events
 redisClient.on('connect', () => {

@@ -6,13 +6,31 @@ config();
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+// Parse database URL if provided (Render provides DATABASE_URL)
+const dbUrl = process.env.DATABASE_URL;
+let dbConfig;
+
+if (dbUrl) {
+  // Parse the DATABASE_URL
+  const matches = dbUrl.match(/mysql:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/);
+  if (matches) {
+    dbConfig = {
+      username: matches[1],
+      password: matches[2],
+      host: matches[3],
+      port: parseInt(matches[4]),
+      database: matches[5],
+    };
+  }
+}
+
 const sequelize = new Sequelize({
   dialect: 'mysql',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '3306'),
-  database: process.env.DB_NAME || 'kyc_db',
-  username: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
+  host: dbConfig?.host || process.env.DB_HOST || 'localhost',
+  port: dbConfig?.port || parseInt(process.env.DB_PORT || '3306'),
+  database: dbConfig?.database || process.env.DB_NAME || 'kyc_db',
+  username: dbConfig?.username || process.env.DB_USER || 'root',
+  password: dbConfig?.password || process.env.DB_PASSWORD || '',
   logging: (msg) => logger.debug(msg),
   pool: {
     max: 5,
