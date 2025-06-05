@@ -11,17 +11,26 @@ import { specs, swaggerUi } from './config/swagger';
 const app = express();
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for Swagger UI
+}));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('combined', { stream }));
 
 // Swagger docs
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(specs, {
+app.use('/api/docs', swaggerUi.serve);
+app.get('/api/docs', swaggerUi.setup(specs, {
   explorer: true,
   customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'KYC API Documentation'
+  customSiteTitle: 'KYC API Documentation',
+  swaggerOptions: {
+    persistAuthorization: true,
+    docExpansion: 'list',
+    filter: true,
+    showCommonExtensions: true
+  }
 }));
 
 // Routes
