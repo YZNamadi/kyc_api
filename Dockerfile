@@ -11,14 +11,26 @@ RUN npm install
 # Copy source code
 COPY . .
 
-# Build TypeScript code
+# Show source files
+RUN echo "Source files:" && ls -la src/
+
+# Build TypeScript code with verbose output
 RUN npm run build
 
-# Verify build output exists
-RUN ls -la dist/
+# Show build output
+RUN echo "Build output:" && ls -la dist/
+
+# Ensure proper permissions
+RUN chown -R node:node /usr/src/app
 
 # Remove dev dependencies
 RUN npm prune --production
+
+# Final verification
+RUN echo "Final directory structure:" && ls -la
+
+# Switch to non-root user
+USER node
 
 # Expose port
 EXPOSE 3000
