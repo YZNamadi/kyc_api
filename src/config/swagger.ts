@@ -3,7 +3,7 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import path from 'path';
 
-// @ts-expect-error TS6133
+// Load the base Swagger document
 const swaggerDocument = YAML.load(path.join(__dirname, '../../docs/swagger.yaml'));
 
 // Update servers based on environment
@@ -18,9 +18,9 @@ const servers = [
 
 const options = {
   definition: {
+    openapi: '3.0.0',
     ...swaggerDocument,
     servers,
-    openapi: '3.0.0',
     components: {
       ...swaggerDocument.components,
       securitySchemes: {
