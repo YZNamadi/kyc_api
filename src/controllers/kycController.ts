@@ -136,6 +136,52 @@ export class KYCController {
     }
   }
 
+  /**
+   * Get KYC verification details by ID
+   * @param req - Express request object
+   * @param res - Express response object
+   * @param next - Express next function
+   * @returns Promise<Response | void>
+   */
+  public static async getKYC(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> {
+    try {
+      const { id } = req.params;
+      const userId = req.user!.id;
+
+      // Get KYC verification
+      const kycVerification = await KYCService.getKYCStatus(id);
+      
+      // If verification not found
+      if (!kycVerification) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'KYC verification not found'
+        });
+      }
+
+      // Check if the user is authorized to view this verification
+      if (kycVerification.userId !== userId && req.user!.role !== 'admin') {
+        return res.status(403).json({
+          status: 'error',
+          message: 'You are not authorized to view this KYC verification'
+        });
+      }
+
+      // Return successful response
+      return res.status(200).json({
+        status: 'success',
+        verification: kycVerification
+      });
+    } catch (error) {
+      // Pass error to error handling middleware
+      return next(error);
+    }
+  }
+
   // List current user's KYC verifications
   public static async listUserKYC(req: Request, res: Response, next: NextFunction) {
     try {

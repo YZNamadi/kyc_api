@@ -16,7 +16,7 @@ const router = Router();
 
 /**
  * @swagger
- * /kyc:
+ * /api/v1/kyc:
  *   post:
  *     tags: [KYC]
  *     summary: Submit KYC verification
@@ -46,7 +46,7 @@ router.post('/', authenticate, kycLimiter, validate(schemas.kycVerification.crea
 
 /**
  * @swagger
- * /kyc:
+ * /api/v1/kyc:
  *   get:
  *     tags: [KYC]
  *     summary: List user's KYC verifications
@@ -68,7 +68,7 @@ router.get('/', authenticate, KYCController.listUserKYC);
 
 /**
  * @swagger
- * /kyc/{id}:
+ * /api/v1/kyc/{id}:
  *   get:
  *     tags: [KYC]
  *     summary: Get KYC verification details
@@ -80,6 +80,7 @@ router.get('/', authenticate, KYCController.listUserKYC);
  *         required: true
  *         schema:
  *           type: string
+ *           format: uuid
  *         description: KYC verification ID
  *     responses:
  *       200:
@@ -158,6 +159,7 @@ router.get('/admin/all', authenticate, authorize(UserRole.ADMIN), KYCController.
  *         required: true
  *         schema:
  *           type: string
+ *           format: uuid
  *         description: KYC verification ID
  *     requestBody:
  *       required: true

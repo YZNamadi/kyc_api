@@ -6,29 +6,23 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'KYC Verification API',
+      title: 'KYC API Documentation',
       version: '1.0.0',
-      description: 'API for KYC verification and risk assessment',
-      contact: {
-        name: 'API Support',
-        email: 'support@example.com'
-      }
+      description: 'API documentation for the KYC verification system',
     },
     servers: [
       {
-        url: process.env.NODE_ENV === 'production' 
-          ? 'https://kyc-api-pf6f.onrender.com/api/v1'
-          : 'http://localhost:3000/api/v1',
-        description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server'
-      }
+        url: 'http://localhost:3000',
+        description: 'Development server',
+      },
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
-          bearerFormat: 'JWT'
-        }
+          bearerFormat: 'JWT',
+        },
       },
       schemas: {
         UserRegistration: {
@@ -64,32 +58,85 @@ const options = {
         },
         KYCSubmission: {
           type: 'object',
-          required: ['type', 'documentType', 'documentNumber', 'documentExpiryDate', 'documentFrontUrl', 'documentBackUrl', 'selfieUrl'],
+          required: [
+            'firstName',
+            'lastName',
+            'dateOfBirth',
+            'nationality',
+            'address',
+            'phoneNumber',
+            'email',
+            'documentType',
+            'documentNumber',
+            'documentExpiryDate',
+            'documentFrontUrl',
+            'documentBackUrl',
+            'selfieUrl'
+          ],
           properties: {
-            type: { type: 'string', enum: ['individual', 'corporate'] },
+            firstName: { type: 'string', minLength: 2, maxLength: 50 },
+            lastName: { type: 'string', minLength: 2, maxLength: 50 },
+            dateOfBirth: { type: 'string', format: 'date' },
+            nationality: { type: 'string' },
+            address: {
+              type: 'object',
+              required: ['street', 'city', 'state', 'country', 'postalCode'],
+              properties: {
+                street: { type: 'string' },
+                city: { type: 'string' },
+                state: { type: 'string' },
+                country: { type: 'string' },
+                postalCode: { type: 'string' }
+              }
+            },
+            phoneNumber: { type: 'string' },
+            email: { type: 'string', format: 'email' },
             documentType: { type: 'string' },
             documentNumber: { type: 'string' },
             documentExpiryDate: { type: 'string', format: 'date' },
-            documentFrontUrl: { type: 'string' },
-            documentBackUrl: { type: 'string' },
-            selfieUrl: { type: 'string' }
+            documentFrontUrl: { type: 'string', format: 'uri' },
+            documentBackUrl: { type: 'string', format: 'uri' },
+            selfieUrl: { type: 'string', format: 'uri' }
           }
         },
         KYCResponse: {
           type: 'object',
           properties: {
-            id: { type: 'string' },
-            userId: { type: 'string' },
+            id: { type: 'string', format: 'uuid' },
+            userId: { type: 'string', format: 'uuid' },
             type: { type: 'string', enum: ['individual', 'corporate'] },
             status: { type: 'string', enum: ['pending', 'approved', 'rejected'] },
             documentType: { type: 'string' },
             documentNumber: { type: 'string' },
             documentExpiryDate: { type: 'string', format: 'date' },
-            documentFrontUrl: { type: 'string' },
-            documentBackUrl: { type: 'string' },
-            selfieUrl: { type: 'string' },
+            documentFrontUrl: { type: 'string', format: 'uri' },
+            documentBackUrl: { type: 'string', format: 'uri' },
+            selfieUrl: { type: 'string', format: 'uri' },
+            verificationData: {
+              type: 'object',
+              properties: {
+                firstName: { type: 'string' },
+                lastName: { type: 'string' },
+                dateOfBirth: { type: 'string', format: 'date' },
+                nationality: { type: 'string' },
+                address: {
+                  type: 'object',
+                  properties: {
+                    street: { type: 'string' },
+                    city: { type: 'string' },
+                    state: { type: 'string' },
+                    country: { type: 'string' },
+                    postalCode: { type: 'string' }
+                  }
+                },
+                phoneNumber: { type: 'string' },
+                email: { type: 'string', format: 'email' }
+              }
+            },
+            riskScore: { type: 'number', minimum: 0, maximum: 100 },
+            riskFactors: { type: 'array', items: { type: 'string' } },
             verificationNotes: { type: 'string' },
-            verifiedBy: { type: 'string' },
+            verifiedBy: { type: 'string', format: 'uuid' },
             verifiedAt: { type: 'string', format: 'date-time' },
             createdAt: { type: 'string', format: 'date-time' },
             updatedAt: { type: 'string', format: 'date-time' }
@@ -99,7 +146,7 @@ const options = {
           type: 'object',
           required: ['status'],
           properties: {
-            status: { type: 'string', enum: ['approved', 'rejected'] },
+            status: { type: 'string', enum: ['pending', 'in_progress', 'approved', 'rejected', 'expired'] },
             verificationNotes: { type: 'string' }
           }
         },
@@ -236,25 +283,21 @@ const options = {
     }
   },
   apis: [
-    path.join(__dirname, '../routes/*.ts'),
-    path.join(__dirname, '../routes/**/*.ts')
-  ]
+    path.join(__dirname, '../routes/**/*.ts'),
+    path.join(__dirname, '../controllers/**/*.ts')
+  ],
 };
 
-const specs = swaggerJsdoc(options);
+export const specs = swaggerJsdoc(options);
 
-// Configure Swagger UI options
-const swaggerUiOptions = {
+export const swaggerUiOptions = {
   explorer: true,
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'KYC API Documentation',
-  swaggerOptions: {
-    persistAuthorization: true,
-    docExpansion: 'list',
-    filter: true,
-    showCommonExtensions: true,
-    tryItOutEnabled: true
-  }
+  showCommonExtensions: true,
+  tryItOutEnabled: true,
+  docExpansion: 'list',
+  filter: true,
+  tagsSorter: 'alpha',
+  operationsSorter: 'alpha'
 };
 
-export { specs, swaggerUi, swaggerUiOptions }; 
+export { swaggerUi }; 

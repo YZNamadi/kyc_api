@@ -19,7 +19,7 @@ router.use(authenticate, authorize(UserRole.ADMIN));
 
 /**
  * @swagger
- * /admin/kyc:
+ * /api/v1/admin/kyc:
  *   get:
  *     tags: [Admin]
  *     summary: List all KYC verifications
@@ -36,6 +36,7 @@ router.use(authenticate, authorize(UserRole.ADMIN));
  *         name: userId
  *         schema:
  *           type: string
+ *           format: uuid
  *         description: Filter by user ID
  *       - in: query
  *         name: page
@@ -73,7 +74,7 @@ router.get('/kyc', KYCController.listAllKYC);
 
 /**
  * @swagger
- * /admin/kyc/{id}/status:
+ * /api/v1/admin/kyc/{id}/status:
  *   put:
  *     tags: [Admin]
  *     summary: Update KYC verification status
@@ -85,6 +86,7 @@ router.get('/kyc', KYCController.listAllKYC);
  *         required: true
  *         schema:
  *           type: string
+ *           format: uuid
  *         description: KYC verification ID
  *     requestBody:
  *       required: true
