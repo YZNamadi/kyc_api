@@ -11,14 +11,26 @@ RUN npm install
 # Copy source code
 COPY . .
 
-# Show source files
+# Debug: Show TypeScript version and configuration
+RUN echo "TypeScript version:" && npx tsc --version
+RUN echo "TypeScript config:" && cat tsconfig.json
+
+# Debug: Show source files
 RUN echo "Source files:" && ls -la src/
 
-# Build TypeScript code with verbose output
+# Build TypeScript code
 RUN npm run build
 
-# Show build output
-RUN echo "Build output:" && ls -la dist/
+# Debug: Show build output
+RUN echo "Build output:" && ls -la dist/ || echo "dist directory not found"
+
+# Debug: Show file contents if build failed
+RUN if [ ! -f "dist/index.js" ]; then \
+    echo "Build failed. Showing relevant files:" && \
+    echo "package.json:" && cat package.json && \
+    echo "tsconfig.json:" && cat tsconfig.json && \
+    echo "src/index.ts:" && cat src/index.ts; \
+    fi
 
 # Ensure proper permissions
 RUN chown -R node:node /usr/src/app
