@@ -17,11 +17,11 @@ RUN npm run build
 # Verify build output exists
 RUN ls -la dist/
 
-# Remove source files and dev dependencies
+# Remove dev dependencies
 RUN npm prune --production
 
 # Expose port
 EXPOSE 3000
 
 # Start the application
-CMD ["npm", "start"] 
+CMD ["node", "dist/index.js"] 
