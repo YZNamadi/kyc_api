@@ -6,7 +6,7 @@ import { logger } from './utils/logger';
 import healthRouter from './routes/health';
 import { setupRoutes } from './routes';
 import { errorHandler } from './middleware/errorHandler';
-import { specs, swaggerUi, swaggerUiOptions } from './config/swagger';
+import { serveSwaggerUI, setupSwaggerUI } from './config/swagger';
 
 // Load environment variables
 config();
@@ -26,7 +26,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Swagger UI setup
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(specs, swaggerUiOptions));
+app.use('/api/docs', serveSwaggerUI, setupSwaggerUI);
 
 // API base route
 app.get('/api/v1', (_req, res) => {

@@ -1,22 +1,21 @@
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import path from 'path';
+import { version } from '../../package.json';
 
-const options = {
+const options: swaggerJsdoc.Options = {
   definition: {
     openapi: '3.0.0',
     info: {
       title: 'KYC API Documentation',
-      version: '1.0.0',
+      version,
       description: 'API documentation for the KYC verification system',
     },
     servers: [
       {
-        url: process.env.NODE_ENV === 'production' 
-          ? 'https://kyc-api-pf6f.onrender.com/api/v1'
-          : 'http://localhost:3000/api/v1',
-        description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server'
-      }
+        url: 'http://localhost:3000/api/v1',
+        description: 'Development server',
+      },
     ],
     components: {
       securitySchemes: {
@@ -31,32 +30,78 @@ const options = {
           type: 'object',
           required: ['email', 'password', 'firstName', 'lastName'],
           properties: {
-            email: { type: 'string', format: 'email' },
-            password: { type: 'string', minLength: 8 },
-            firstName: { type: 'string' },
-            lastName: { type: 'string' }
-          }
+            email: {
+              type: 'string',
+              format: 'email',
+            },
+            password: {
+              type: 'string',
+              minLength: 8,
+            },
+            firstName: {
+              type: 'string',
+              minLength: 2,
+              maxLength: 50,
+            },
+            lastName: {
+              type: 'string',
+              minLength: 2,
+              maxLength: 50,
+            },
+            role: {
+              type: 'string',
+              enum: ['user', 'admin'],
+              default: 'user',
+            },
+          },
         },
         UserLogin: {
           type: 'object',
           required: ['email', 'password'],
           properties: {
-            email: { type: 'string', format: 'email' },
-            password: { type: 'string' }
-          }
+            email: {
+              type: 'string',
+              format: 'email',
+            },
+            password: {
+              type: 'string',
+            },
+          },
         },
         UserResponse: {
           type: 'object',
           properties: {
-            id: { type: 'string' },
-            email: { type: 'string', format: 'email' },
-            firstName: { type: 'string' },
-            lastName: { type: 'string' },
-            role: { type: 'string', enum: ['user', 'admin'] },
-            status: { type: 'string', enum: ['active', 'inactive', 'suspended'] },
-            createdAt: { type: 'string', format: 'date-time' },
-            updatedAt: { type: 'string', format: 'date-time' }
-          }
+            id: {
+              type: 'string',
+              format: 'uuid',
+            },
+            email: {
+              type: 'string',
+              format: 'email',
+            },
+            firstName: {
+              type: 'string',
+            },
+            lastName: {
+              type: 'string',
+            },
+            role: {
+              type: 'string',
+              enum: ['user', 'admin'],
+            },
+            status: {
+              type: 'string',
+              enum: ['active', 'inactive', 'suspended'],
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+            },
+          },
         },
         KYCSubmission: {
           type: 'object',
@@ -73,143 +118,387 @@ const options = {
             'documentExpiryDate',
             'documentFrontUrl',
             'documentBackUrl',
-            'selfieUrl'
+            'selfieUrl',
           ],
           properties: {
-            firstName: { type: 'string', minLength: 2, maxLength: 50 },
-            lastName: { type: 'string', minLength: 2, maxLength: 50 },
-            dateOfBirth: { type: 'string', format: 'date' },
-            nationality: { type: 'string' },
+            firstName: {
+              type: 'string',
+              minLength: 2,
+              maxLength: 50,
+            },
+            lastName: {
+              type: 'string',
+              minLength: 2,
+              maxLength: 50,
+            },
+            dateOfBirth: {
+              type: 'string',
+              format: 'date',
+            },
+            nationality: {
+              type: 'string',
+            },
             address: {
               type: 'object',
               required: ['street', 'city', 'state', 'country', 'postalCode'],
               properties: {
-                street: { type: 'string' },
-                city: { type: 'string' },
-                state: { type: 'string' },
-                country: { type: 'string' },
-                postalCode: { type: 'string' }
-              }
+                street: {
+                  type: 'string',
+                },
+                city: {
+                  type: 'string',
+                },
+                state: {
+                  type: 'string',
+                },
+                country: {
+                  type: 'string',
+                },
+                postalCode: {
+                  type: 'string',
+                },
+              },
             },
-            phoneNumber: { type: 'string' },
-            email: { type: 'string', format: 'email' },
-            documentType: { type: 'string' },
-            documentNumber: { type: 'string' },
-            documentExpiryDate: { type: 'string', format: 'date' },
-            documentFrontUrl: { type: 'string', format: 'uri' },
-            documentBackUrl: { type: 'string', format: 'uri' },
-            selfieUrl: { type: 'string', format: 'uri' }
-          }
+            phoneNumber: {
+              type: 'string',
+            },
+            email: {
+              type: 'string',
+              format: 'email',
+            },
+            documentType: {
+              type: 'string',
+              enum: ['passport', 'national_id', 'drivers_license'],
+            },
+            documentNumber: {
+              type: 'string',
+            },
+            documentExpiryDate: {
+              type: 'string',
+              format: 'date',
+            },
+            documentFrontUrl: {
+              type: 'string',
+              format: 'uri',
+            },
+            documentBackUrl: {
+              type: 'string',
+              format: 'uri',
+            },
+            selfieUrl: {
+              type: 'string',
+              format: 'uri',
+            },
+          },
         },
         KYCResponse: {
           type: 'object',
           properties: {
-            id: { type: 'string', format: 'uuid' },
-            userId: { type: 'string', format: 'uuid' },
-            type: { type: 'string', enum: ['individual', 'corporate'] },
-            status: { type: 'string', enum: ['pending', 'approved', 'rejected'] },
-            documentType: { type: 'string' },
-            documentNumber: { type: 'string' },
-            documentExpiryDate: { type: 'string', format: 'date' },
-            documentFrontUrl: { type: 'string', format: 'uri' },
-            documentBackUrl: { type: 'string', format: 'uri' },
-            selfieUrl: { type: 'string', format: 'uri' },
-            verificationData: {
-              type: 'object',
-              properties: {
-                firstName: { type: 'string' },
-                lastName: { type: 'string' },
-                dateOfBirth: { type: 'string', format: 'date' },
-                nationality: { type: 'string' },
-                address: {
-                  type: 'object',
-                  properties: {
-                    street: { type: 'string' },
-                    city: { type: 'string' },
-                    state: { type: 'string' },
-                    country: { type: 'string' },
-                    postalCode: { type: 'string' }
-                  }
-                },
-                phoneNumber: { type: 'string' },
-                email: { type: 'string', format: 'email' }
-              }
+            id: {
+              type: 'string',
+              format: 'uuid',
             },
-            riskScore: { type: 'number', minimum: 0, maximum: 100 },
-            riskFactors: { type: 'array', items: { type: 'string' } },
-            verificationNotes: { type: 'string' },
-            verifiedBy: { type: 'string', format: 'uuid' },
-            verifiedAt: { type: 'string', format: 'date-time' },
-            createdAt: { type: 'string', format: 'date-time' },
-            updatedAt: { type: 'string', format: 'date-time' }
-          }
+            userId: {
+              type: 'string',
+              format: 'uuid',
+            },
+            firstName: {
+              type: 'string',
+              minLength: 2,
+              maxLength: 50,
+            },
+            lastName: {
+              type: 'string',
+              minLength: 2,
+              maxLength: 50,
+            },
+            dateOfBirth: {
+              type: 'string',
+              format: 'date',
+            },
+            nationality: {
+              type: 'string',
+            },
+            address: {
+              type: 'object',
+              required: ['street', 'city', 'state', 'country', 'postalCode'],
+              properties: {
+                street: {
+                  type: 'string',
+                },
+                city: {
+                  type: 'string',
+                },
+                state: {
+                  type: 'string',
+                },
+                country: {
+                  type: 'string',
+                },
+                postalCode: {
+                  type: 'string',
+                },
+              },
+            },
+            phoneNumber: {
+              type: 'string',
+            },
+            email: {
+              type: 'string',
+              format: 'email',
+            },
+            documentType: {
+              type: 'string',
+              enum: ['passport', 'national_id', 'drivers_license'],
+            },
+            documentNumber: {
+              type: 'string',
+            },
+            documentExpiryDate: {
+              type: 'string',
+              format: 'date',
+            },
+            documentFrontUrl: {
+              type: 'string',
+              format: 'uri',
+            },
+            documentBackUrl: {
+              type: 'string',
+              format: 'uri',
+            },
+            selfieUrl: {
+              type: 'string',
+              format: 'uri',
+            },
+            status: {
+              type: 'string',
+              enum: ['pending', 'in_progress', 'approved', 'rejected', 'expired'],
+            },
+            verificationNotes: {
+              type: 'string',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+            },
+          },
         },
         KYCStatusUpdate: {
           type: 'object',
           required: ['status'],
           properties: {
-            status: { type: 'string', enum: ['pending', 'in_progress', 'approved', 'rejected', 'expired'] },
-            verificationNotes: { type: 'string' }
-          }
+            status: {
+              type: 'string',
+              enum: ['pending', 'in_progress', 'approved', 'rejected', 'expired'],
+            },
+            verificationNotes: {
+              type: 'string',
+            },
+          },
         },
         DocumentResponse: {
           type: 'object',
           properties: {
-            id: { type: 'string' },
-            userId: { type: 'string' },
-            documentType: { type: 'string', enum: ['passport', 'national_id', 'proof_of_address', 'selfie'] },
-            status: { type: 'string', enum: ['pending', 'verified', 'rejected'] },
-            fileUrl: { type: 'string' },
-            description: { type: 'string' },
-            verificationNotes: { type: 'string' },
-            createdAt: { type: 'string', format: 'date-time' },
-            updatedAt: { type: 'string', format: 'date-time' }
-          }
+            id: {
+              type: 'string',
+              format: 'uuid',
+            },
+            userId: {
+              type: 'string',
+              format: 'uuid',
+            },
+            documentType: {
+              type: 'string',
+              enum: ['passport', 'national_id', 'proof_of_address', 'selfie'],
+            },
+            documentNumber: {
+              type: 'string',
+            },
+            fileUrl: {
+              type: 'string',
+              format: 'uri',
+            },
+            status: {
+              type: 'string',
+              enum: ['pending', 'verified', 'rejected', 'expired'],
+            },
+            verificationNotes: {
+              type: 'string',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+            },
+          },
         },
         DocumentStatusUpdate: {
           type: 'object',
           required: ['status'],
           properties: {
-            status: { type: 'string', enum: ['verified', 'rejected'] },
-            verificationNotes: { type: 'string' }
-          }
+            status: {
+              type: 'string',
+              enum: ['pending', 'verified', 'rejected', 'expired'],
+            },
+            verificationNotes: {
+              type: 'string',
+            },
+          },
         },
         RiskAssessmentCreate: {
           type: 'object',
-          required: ['type', 'data'],
+          required: [
+            'kycVerificationId',
+            'overallRiskScore',
+            'riskLevel',
+            'riskFactors',
+            'expiryDate',
+          ],
           properties: {
-            type: { type: 'string', enum: ['identity', 'address', 'employment', 'financial'] },
-            data: {
-              type: 'object',
-              properties: {
-                source: { type: 'string' },
-                reference: { type: 'string' },
-                additionalInfo: { type: 'object' }
-              }
-            }
-          }
+            kycVerificationId: {
+              type: 'string',
+              format: 'uuid',
+            },
+            overallRiskScore: {
+              type: 'number',
+              minimum: 0,
+              maximum: 100,
+            },
+            riskLevel: {
+              type: 'string',
+              enum: ['low', 'medium', 'high', 'critical'],
+            },
+            riskFactors: {
+              type: 'array',
+              items: {
+                type: 'object',
+                required: ['type', 'description', 'score', 'details'],
+                properties: {
+                  type: {
+                    type: 'string',
+                    enum: [
+                      'identity',
+                      'document',
+                      'behavioral',
+                      'transactional',
+                      'geographical',
+                      'political',
+                      'other',
+                    ],
+                  },
+                  description: {
+                    type: 'string',
+                  },
+                  score: {
+                    type: 'number',
+                    minimum: 0,
+                    maximum: 100,
+                  },
+                  details: {
+                    type: 'object',
+                  },
+                },
+              },
+            },
+            assessmentDate: {
+              type: 'string',
+              format: 'date-time',
+            },
+            expiryDate: {
+              type: 'string',
+              format: 'date-time',
+            },
+            assessmentNotes: {
+              type: 'string',
+            },
+          },
         },
         RiskAssessmentResponse: {
           type: 'object',
           properties: {
-            id: { type: 'string' },
-            userId: { type: 'string' },
-            type: { type: 'string', enum: ['identity', 'address', 'employment', 'financial'] },
-            status: { type: 'string', enum: ['pending', 'completed', 'failed'] },
-            score: { type: 'number' },
-            riskLevel: { type: 'string', enum: ['low', 'medium', 'high'] },
-            data: { type: 'object' },
-            results: {
-              type: 'object',
-              properties: {
-                checks: { type: 'array', items: { type: 'object' } },
-                summary: { type: 'string' },
-                recommendations: { type: 'array', items: { type: 'string' } }
-              }
+            id: {
+              type: 'string',
+              format: 'uuid',
             },
-            createdAt: { type: 'string', format: 'date-time' },
-            updatedAt: { type: 'string', format: 'date-time' }
-          }
+            userId: {
+              type: 'string',
+              format: 'uuid',
+            },
+            kycVerificationId: {
+              type: 'string',
+              format: 'uuid',
+            },
+            overallRiskScore: {
+              type: 'number',
+              minimum: 0,
+              maximum: 100,
+            },
+            riskLevel: {
+              type: 'string',
+              enum: ['low', 'medium', 'high', 'critical'],
+            },
+            riskFactors: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  type: {
+                    type: 'string',
+                    enum: [
+                      'identity',
+                      'document',
+                      'behavioral',
+                      'transactional',
+                      'geographical',
+                      'political',
+                      'other',
+                    ],
+                  },
+                  description: {
+                    type: 'string',
+                  },
+                  score: {
+                    type: 'number',
+                    minimum: 0,
+                    maximum: 100,
+                  },
+                  details: {
+                    type: 'object',
+                  },
+                },
+              },
+            },
+            assessmentDate: {
+              type: 'string',
+              format: 'date-time',
+            },
+            expiryDate: {
+              type: 'string',
+              format: 'date-time',
+            },
+            assessmentNotes: {
+              type: 'string',
+            },
+            assessedBy: {
+              type: 'string',
+              format: 'uuid',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+            },
+          },
         },
         Pagination: {
           type: 'object',
@@ -281,7 +570,12 @@ const options = {
             }
           }
         }
-      }
+      },
+      security: [
+        {
+          bearerAuth: [],
+        },
+      ],
     }
   },
   apis: [
@@ -292,17 +586,12 @@ const options = {
   ],
 };
 
-export const specs = swaggerJsdoc(options);
+const swaggerSpec = swaggerJsdoc(options);
 
 export const swaggerUiOptions = {
-  explorer: true,
-  showCommonExtensions: true,
-  tryItOutEnabled: true,
-  docExpansion: 'list',
-  filter: true,
-  tagsSorter: 'alpha',
-  operationsSorter: 'alpha',
-  persistAuthorization: true
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'KYC API Documentation',
 };
 
-export { swaggerUi }; 
+export const serveSwaggerUI = swaggerUi.serve;
+export const setupSwaggerUI = swaggerUi.setup(swaggerSpec, swaggerUiOptions); 
