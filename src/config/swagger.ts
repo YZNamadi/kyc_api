@@ -576,17 +576,18 @@ const options: swaggerJsdoc.Options = {
           bearerAuth: [],
         },
       ],
-    }
+    },
   },
   apis: [
-    path.resolve(__dirname, '../routes/*.ts'),
-    path.resolve(__dirname, '../routes/**/*.ts'),
-    path.resolve(__dirname, '../controllers/*.ts'),
-    path.resolve(__dirname, '../controllers/**/*.ts')
+    path.join(__dirname, '../routes/**/*.js'),
   ],
+  swaggerOptions: {
+    showCommonExtensions: true,
+    tryItOutEnabled: true,
+  },
 };
 
-const swaggerSpec = swaggerJsdoc(options);
+const specs = swaggerJsdoc(options);
 
 export const swaggerUiOptions = {
   customCss: '.swagger-ui .topbar { display: none }',
@@ -594,4 +595,4 @@ export const swaggerUiOptions = {
 };
 
 export const serveSwaggerUI = swaggerUi.serve;
-export const setupSwaggerUI = swaggerUi.setup(swaggerSpec, swaggerUiOptions); 
+export const setupSwaggerUI = swaggerUi.setup(specs, options.swaggerOptions); 
