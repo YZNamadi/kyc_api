@@ -171,6 +171,67 @@ const options = {
             pages: { type: 'integer' }
           }
         }
+      },
+      paths: {
+        '/users/register': {
+          post: {
+            tags: ['Users'],
+            summary: 'Register a new user',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/UserRegistration'
+                  }
+                }
+              }
+            },
+            responses: {
+              '201': {
+                description: 'User registered successfully'
+              },
+              '400': {
+                description: 'Invalid input data'
+              }
+            }
+          }
+        },
+        '/users/login': {
+          post: {
+            tags: ['Users'],
+            summary: 'Login user',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/UserLogin'
+                  }
+                }
+              }
+            },
+            responses: {
+              '200': {
+                description: 'Login successful',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        token: { type: 'string' },
+                        user: { $ref: '#/components/schemas/UserResponse' }
+                      }
+                    }
+                  }
+                }
+              },
+              '401': {
+                description: 'Invalid credentials'
+              }
+            }
+          }
+        }
       }
     }
   },

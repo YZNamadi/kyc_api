@@ -16,7 +16,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/v1/users/register:
+ * /users/register:
  *   post:
  *     tags: [Users]
  *     summary: Register a new user
@@ -36,7 +36,7 @@ router.post('/register', apiLimiter, validate(schemas.user.create), userControll
 
 /**
  * @swagger
- * /api/v1/users/login:
+ * /users/login:
  *   post:
  *     tags: [Users]
  *     summary: Login user
@@ -49,6 +49,15 @@ router.post('/register', apiLimiter, validate(schemas.user.create), userControll
  *     responses:
  *       200:
  *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                 user:
+ *                   $ref: '#/components/schemas/UserResponse'
  *       401:
  *         description: Invalid credentials
  */
@@ -56,15 +65,19 @@ router.post('/login', authLimiter, validate(schemas.user.login), userController.
 
 /**
  * @swagger
- * /api/v1/users/me:
+ * /users/me:
  *   get:
  *     tags: [Users]
- *     summary: Get user profile
+ *     summary: Get current user profile
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: User profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserResponse'
  *       401:
  *         description: Unauthorized
  */
@@ -72,7 +85,7 @@ router.get('/me', authenticate, userController.getProfile);
 
 /**
  * @swagger
- * /api/v1/users/me:
+ * /users/me:
  *   put:
  *     tags: [Users]
  *     summary: Update user profile
@@ -94,7 +107,7 @@ router.put('/me', authenticate, validate(schemas.user.update), userController.up
 
 /**
  * @swagger
- * /api/v1/users/me/password:
+ * /users/me/password:
  *   patch:
  *     tags: [Users]
  *     summary: Change user password
@@ -116,15 +129,52 @@ router.patch('/me/password', authenticate, validate(schemas.user.update), userCo
 
 /**
  * @swagger
- * /api/v1/users:
+ * /users:
  *   get:
  *     tags: [Users]
  *     summary: List all users (Admin only)
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [user, admin]
+ *         description: Filter by role
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [active, inactive, suspended]
+ *         description: Filter by status
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: List of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/UserResponse'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
  *       401:
  *         description: Unauthorized
  *       403:

@@ -17,7 +17,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/v1/documents:
+ * /documents:
  *   post:
  *     tags: [Documents]
  *     summary: Upload a document
@@ -67,7 +67,7 @@ router.post(
 
 /**
  * @swagger
- * /api/v1/documents/{id}:
+ * /documents/{id}:
  *   get:
  *     tags: [Documents]
  *     summary: Get document details
@@ -96,7 +96,7 @@ router.get('/:id', authenticate, documentController.getDocument);
 
 /**
  * @swagger
- * /api/v1/documents:
+ * /documents:
  *   get:
  *     tags: [Documents]
  *     summary: List user's documents
@@ -131,7 +131,7 @@ router.get('/', authenticate, documentController.listDocuments);
 
 /**
  * @swagger
- * /api/v1/documents/admin/all:
+ * /documents/admin/all:
  *   get:
  *     tags: [Documents]
  *     summary: List all documents (Admin only)
@@ -191,7 +191,7 @@ router.get('/admin/all', authenticate, authorize(UserRole.ADMIN), documentContro
 
 /**
  * @swagger
- * /api/v1/documents/admin/{id}/status:
+ * /documents/admin/{id}/status:
  *   patch:
  *     tags: [Documents]
  *     summary: Update document status (Admin only)

@@ -15,7 +15,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/v1/risk-assessment:
+ * /risk-assessment:
  *   post:
  *     tags: [Risk Assessment]
  *     summary: Create a new risk assessment
@@ -43,7 +43,7 @@ router.post('/', authenticate, validate(schemas.riskAssessment.create), riskAsse
 
 /**
  * @swagger
- * /api/v1/risk-assessment/my-assessments:
+ * /risk-assessment/my-assessments:
  *   get:
  *     tags: [Risk Assessment]
  *     summary: List user's risk assessments
@@ -90,7 +90,7 @@ router.get('/my-assessments', authenticate, riskAssessmentController.listUserAss
 
 /**
  * @swagger
- * /api/v1/risk-assessment/{id}:
+ * /risk-assessment/{id}:
  *   get:
  *     tags: [Risk Assessment]
  *     summary: Get risk assessment details

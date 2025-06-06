@@ -16,7 +16,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/v1/kyc:
+ * /kyc:
  *   post:
  *     tags: [KYC]
  *     summary: Submit KYC verification
@@ -46,36 +46,7 @@ router.post('/', authenticate, kycLimiter, validate(schemas.kycVerification.crea
 
 /**
  * @swagger
- * /api/v1/kyc/{id}:
- *   get:
- *     tags: [KYC]
- *     summary: Get KYC verification status
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: KYC verification ID
- *     responses:
- *       200:
- *         description: KYC status retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/KYCStatus'
- *       401:
- *         description: Unauthorized
- *       404:
- *         description: KYC verification not found
- */
-router.get('/:id', authenticate, KYCController.getKYCStatus);
-
-/**
- * @swagger
- * /api/v1/kyc:
+ * /kyc:
  *   get:
  *     tags: [KYC]
  *     summary: List user's KYC verifications
@@ -94,6 +65,35 @@ router.get('/:id', authenticate, KYCController.getKYCStatus);
  *         description: Unauthorized
  */
 router.get('/', authenticate, KYCController.listUserKYC);
+
+/**
+ * @swagger
+ * /kyc/{id}:
+ *   get:
+ *     tags: [KYC]
+ *     summary: Get KYC verification details
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: KYC verification ID
+ *     responses:
+ *       200:
+ *         description: KYC verification details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/KYCResponse'
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: KYC verification not found
+ */
+router.get('/:id', authenticate, KYCController.getKYC);
 
 /**
  * @swagger

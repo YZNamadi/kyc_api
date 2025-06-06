@@ -19,7 +19,7 @@ router.use(authenticate, authorize(UserRole.ADMIN));
 
 /**
  * @swagger
- * /api/v1/admin/kyc:
+ * /admin/kyc:
  *   get:
  *     tags: [Admin]
  *     summary: List all KYC verifications
@@ -73,7 +73,7 @@ router.get('/kyc', KYCController.listAllKYC);
 
 /**
  * @swagger
- * /api/v1/admin/kyc/{id}/status:
+ * /admin/kyc/{id}/status:
  *   put:
  *     tags: [Admin]
  *     summary: Update KYC verification status
@@ -110,7 +110,7 @@ router.put('/kyc/:id/status', KYCController.updateKYCStatus);
 
 /**
  * @swagger
- * /api/v1/admin/documents:
+ * /admin/documents:
  *   get:
  *     tags: [Admin]
  *     summary: List all documents
@@ -170,7 +170,7 @@ router.get('/documents', documentController.listDocuments);
 
 /**
  * @swagger
- * /api/v1/admin/documents/{id}/status:
+ * /admin/documents/{id}/status:
  *   put:
  *     tags: [Admin]
  *     summary: Update document status
@@ -207,7 +207,7 @@ router.put('/documents/:id/status', documentController.updateDocumentStatus);
 
 /**
  * @swagger
- * /api/v1/admin/users:
+ * /admin/users:
  *   get:
  *     tags: [Admin]
  *     summary: List all users
@@ -262,7 +262,7 @@ router.get('/users', userController.listUsers);
 
 /**
  * @swagger
- * /api/v1/admin/users/{id}/status:
+ * /admin/users/{id}/status:
  *   put:
  *     tags: [Admin]
  *     summary: Change user status
