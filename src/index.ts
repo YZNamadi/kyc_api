@@ -6,6 +6,7 @@ import { logger } from './utils/logger';
 import healthRouter from './routes/health';
 import { setupRoutes } from './routes';
 import { errorHandler } from './middleware/errorHandler';
+import { specs, swaggerUi, swaggerUiOptions } from './config/swagger';
 
 // Load environment variables
 config();
@@ -15,13 +16,17 @@ const app = express();
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://kyc-api-pf6f.onrender.com', 'http://localhost:3000']
+    ? ['https://kyc-api-pf6f.onrender.com', 'http://localhost:3000', 'https://kyc-api-pf6f.onrender.com/api/docs']
     : '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Swagger UI setup
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(specs, swaggerUiOptions));
 
 // API base route
 app.get('/api/v1', (_req, res) => {
