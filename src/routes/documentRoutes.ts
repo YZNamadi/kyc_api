@@ -9,15 +9,15 @@ import { UserRole } from '../models/User';
 const router = Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Documents
  *   description: Document upload and management endpoints
  */
 
 /**
- * @swagger
- * /documents:
+ * @openapi
+ * /api/v1/documents:
  *   post:
  *     tags: [Documents]
  *     summary: Upload a document
@@ -47,7 +47,12 @@ const router = Router();
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/DocumentResponse'
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 document:
+ *                   $ref: '#/components/schemas/DocumentResponse'
  *       400:
  *         description: Invalid input data
  *       401:
@@ -66,8 +71,8 @@ router.post(
 );
 
 /**
- * @swagger
- * /documents/{id}:
+ * @openapi
+ * /api/v1/documents/{id}:
  *   get:
  *     tags: [Documents]
  *     summary: Get document details
@@ -79,6 +84,7 @@ router.post(
  *         required: true
  *         schema:
  *           type: string
+ *           format: uuid
  *         description: Document ID
  *     responses:
  *       200:
@@ -86,7 +92,10 @@ router.post(
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/DocumentResponse'
+ *               type: object
+ *               properties:
+ *                 document:
+ *                   $ref: '#/components/schemas/DocumentResponse'
  *       401:
  *         description: Unauthorized
  *       404:
@@ -95,8 +104,8 @@ router.post(
 router.get('/:id', authenticate, documentController.getDocument);
 
 /**
- * @swagger
- * /documents:
+ * @openapi
+ * /api/v1/documents:
  *   get:
  *     tags: [Documents]
  *     summary: List user's documents
@@ -115,23 +124,43 @@ router.get('/:id', authenticate, documentController.getDocument);
  *           type: string
  *           enum: [pending, verified, rejected]
  *         description: Filter by status
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: List of user's documents
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/DocumentResponse'
+ *               type: object
+ *               properties:
+ *                 documents:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/DocumentResponse'
+ *                 total:
+ *                   type: integer
+ *                 pages:
+ *                   type: integer
  *       401:
  *         description: Unauthorized
  */
 router.get('/', authenticate, documentController.listDocuments);
 
 /**
- * @swagger
- * /documents/admin/all:
+ * @openapi
+ * /api/v1/documents/admin/all:
  *   get:
  *     tags: [Documents]
  *     summary: List all documents (Admin only)
@@ -154,6 +183,7 @@ router.get('/', authenticate, documentController.listDocuments);
  *         name: userId
  *         schema:
  *           type: string
+ *           format: uuid
  *         description: Filter by user ID
  *       - in: query
  *         name: page
@@ -176,12 +206,14 @@ router.get('/', authenticate, documentController.listDocuments);
  *             schema:
  *               type: object
  *               properties:
- *                 data:
+ *                 documents:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/DocumentResponse'
- *                 pagination:
- *                   $ref: '#/components/schemas/Pagination'
+ *                 total:
+ *                   type: integer
+ *                 pages:
+ *                   type: integer
  *       401:
  *         description: Unauthorized
  *       403:
@@ -190,8 +222,8 @@ router.get('/', authenticate, documentController.listDocuments);
 router.get('/admin/all', authenticate, authorize(UserRole.ADMIN), documentController.listDocuments);
 
 /**
- * @swagger
- * /documents/admin/{id}/status:
+ * @openapi
+ * /api/v1/documents/admin/{id}/status:
  *   patch:
  *     tags: [Documents]
  *     summary: Update document status (Admin only)
@@ -203,6 +235,7 @@ router.get('/admin/all', authenticate, authorize(UserRole.ADMIN), documentContro
  *         required: true
  *         schema:
  *           type: string
+ *           format: uuid
  *         description: Document ID
  *     requestBody:
  *       required: true
@@ -216,7 +249,12 @@ router.get('/admin/all', authenticate, authorize(UserRole.ADMIN), documentContro
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/DocumentResponse'
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 document:
+ *                   $ref: '#/components/schemas/DocumentResponse'
  *       401:
  *         description: Unauthorized
  *       403:

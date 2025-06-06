@@ -12,9 +12,11 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
-        description: 'Development server',
-      },
+        url: process.env.NODE_ENV === 'production' 
+          ? 'https://kyc-api-pf6f.onrender.com/api/v1'
+          : 'http://localhost:3000/api/v1',
+        description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server'
+      }
     ],
     components: {
       securitySchemes: {
@@ -283,8 +285,10 @@ const options = {
     }
   },
   apis: [
-    path.join(__dirname, '../routes/**/*.ts'),
-    path.join(__dirname, '../controllers/**/*.ts')
+    path.resolve(__dirname, '../routes/*.ts'),
+    path.resolve(__dirname, '../routes/**/*.ts'),
+    path.resolve(__dirname, '../controllers/*.ts'),
+    path.resolve(__dirname, '../controllers/**/*.ts')
   ],
 };
 
@@ -297,7 +301,8 @@ export const swaggerUiOptions = {
   docExpansion: 'list',
   filter: true,
   tagsSorter: 'alpha',
-  operationsSorter: 'alpha'
+  operationsSorter: 'alpha',
+  persistAuthorization: true
 };
 
 export { swaggerUi }; 

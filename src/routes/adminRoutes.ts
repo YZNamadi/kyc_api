@@ -8,7 +8,7 @@ import { UserRole } from '../models/User';
 const router = Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Admin
  *   description: Administrative endpoints for managing KYC, documents, and users
@@ -18,7 +18,7 @@ const router = Router();
 router.use(authenticate, authorize(UserRole.ADMIN));
 
 /**
- * @swagger
+ * @openapi
  * /api/v1/admin/kyc:
  *   get:
  *     tags: [Admin]
@@ -59,12 +59,14 @@ router.use(authenticate, authorize(UserRole.ADMIN));
  *             schema:
  *               type: object
  *               properties:
- *                 data:
+ *                 verifications:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/KYCResponse'
- *                 pagination:
- *                   $ref: '#/components/schemas/Pagination'
+ *                 total:
+ *                   type: integer
+ *                 pages:
+ *                   type: integer
  *       401:
  *         description: Unauthorized
  *       403:
@@ -73,7 +75,7 @@ router.use(authenticate, authorize(UserRole.ADMIN));
 router.get('/kyc', KYCController.listAllKYC);
 
 /**
- * @swagger
+ * @openapi
  * /api/v1/admin/kyc/{id}/status:
  *   put:
  *     tags: [Admin]
@@ -100,7 +102,12 @@ router.get('/kyc', KYCController.listAllKYC);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/KYCResponse'
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 verification:
+ *                   $ref: '#/components/schemas/KYCResponse'
  *       401:
  *         description: Unauthorized
  *       403:
@@ -111,8 +118,8 @@ router.get('/kyc', KYCController.listAllKYC);
 router.put('/kyc/:id/status', KYCController.updateKYCStatus);
 
 /**
- * @swagger
- * /admin/documents:
+ * @openapi
+ * /api/v1/admin/documents:
  *   get:
  *     tags: [Admin]
  *     summary: List all documents
@@ -135,6 +142,7 @@ router.put('/kyc/:id/status', KYCController.updateKYCStatus);
  *         name: userId
  *         schema:
  *           type: string
+ *           format: uuid
  *         description: Filter by user ID
  *       - in: query
  *         name: page
@@ -157,12 +165,14 @@ router.put('/kyc/:id/status', KYCController.updateKYCStatus);
  *             schema:
  *               type: object
  *               properties:
- *                 data:
+ *                 documents:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/DocumentResponse'
- *                 pagination:
- *                   $ref: '#/components/schemas/Pagination'
+ *                 total:
+ *                   type: integer
+ *                 pages:
+ *                   type: integer
  *       401:
  *         description: Unauthorized
  *       403:
@@ -171,8 +181,8 @@ router.put('/kyc/:id/status', KYCController.updateKYCStatus);
 router.get('/documents', documentController.listDocuments);
 
 /**
- * @swagger
- * /admin/documents/{id}/status:
+ * @openapi
+ * /api/v1/admin/documents/{id}/status:
  *   put:
  *     tags: [Admin]
  *     summary: Update document status
@@ -184,6 +194,7 @@ router.get('/documents', documentController.listDocuments);
  *         required: true
  *         schema:
  *           type: string
+ *           format: uuid
  *         description: Document ID
  *     requestBody:
  *       required: true
@@ -197,7 +208,12 @@ router.get('/documents', documentController.listDocuments);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/DocumentResponse'
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 document:
+ *                   $ref: '#/components/schemas/DocumentResponse'
  *       401:
  *         description: Unauthorized
  *       403:
@@ -208,8 +224,8 @@ router.get('/documents', documentController.listDocuments);
 router.put('/documents/:id/status', documentController.updateDocumentStatus);
 
 /**
- * @swagger
- * /admin/users:
+ * @openapi
+ * /api/v1/admin/users:
  *   get:
  *     tags: [Admin]
  *     summary: List all users
@@ -249,12 +265,14 @@ router.put('/documents/:id/status', documentController.updateDocumentStatus);
  *             schema:
  *               type: object
  *               properties:
- *                 data:
+ *                 users:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/UserResponse'
- *                 pagination:
- *                   $ref: '#/components/schemas/Pagination'
+ *                 total:
+ *                   type: integer
+ *                 pages:
+ *                   type: integer
  *       401:
  *         description: Unauthorized
  *       403:
@@ -263,8 +281,8 @@ router.put('/documents/:id/status', documentController.updateDocumentStatus);
 router.get('/users', userController.listUsers);
 
 /**
- * @swagger
- * /admin/users/{id}/status:
+ * @openapi
+ * /api/v1/admin/users/{id}/status:
  *   put:
  *     tags: [Admin]
  *     summary: Change user status
@@ -276,20 +294,32 @@ router.get('/users', userController.listUsers);
  *         required: true
  *         schema:
  *           type: string
+ *           format: uuid
  *         description: User ID
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/UserStatusUpdate'
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive, suspended]
  *     responses:
  *       200:
  *         description: User status updated successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/UserResponse'
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 user:
+ *                   $ref: '#/components/schemas/UserResponse'
  *       401:
  *         description: Unauthorized
  *       403:

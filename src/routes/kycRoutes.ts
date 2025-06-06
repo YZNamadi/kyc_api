@@ -8,14 +8,14 @@ import { UserRole } from '../models/User';
 const router = Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: KYC
  *   description: KYC verification and management endpoints
  */
 
 /**
- * @swagger
+ * @openapi
  * /api/v1/kyc:
  *   post:
  *     tags: [KYC]
@@ -45,29 +45,50 @@ const router = Router();
 router.post('/', authenticate, kycLimiter, validate(schemas.kycVerification.create), KYCController.submitKYC);
 
 /**
- * @swagger
+ * @openapi
  * /api/v1/kyc:
  *   get:
  *     tags: [KYC]
  *     summary: List user's KYC verifications
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: List of user's KYC verifications
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/KYCResponse'
+ *               type: object
+ *               properties:
+ *                 verifications:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/KYCResponse'
+ *                 total:
+ *                   type: integer
+ *                 pages:
+ *                   type: integer
  *       401:
  *         description: Unauthorized
  */
 router.get('/', authenticate, KYCController.listUserKYC);
 
 /**
- * @swagger
+ * @openapi
  * /api/v1/kyc/{id}:
  *   get:
  *     tags: [KYC]
@@ -88,16 +109,24 @@ router.get('/', authenticate, KYCController.listUserKYC);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/KYCResponse'
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   enum: [success]
+ *                 verification:
+ *                   $ref: '#/components/schemas/KYCResponse'
  *       401:
  *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Not authorized to view this verification
  *       404:
  *         description: KYC verification not found
  */
 router.get('/:id', authenticate, KYCController.getKYC);
 
 /**
- * @swagger
+ * @openapi
  * /api/v1/kyc/admin/all:
  *   get:
  *     tags: [KYC]
@@ -132,12 +161,14 @@ router.get('/:id', authenticate, KYCController.getKYC);
  *             schema:
  *               type: object
  *               properties:
- *                 data:
+ *                 verifications:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/KYCResponse'
- *                 pagination:
- *                   $ref: '#/components/schemas/Pagination'
+ *                 total:
+ *                   type: integer
+ *                 pages:
+ *                   type: integer
  *       401:
  *         description: Unauthorized
  *       403:
@@ -146,7 +177,7 @@ router.get('/:id', authenticate, KYCController.getKYC);
 router.get('/admin/all', authenticate, authorize(UserRole.ADMIN), KYCController.listAllKYC);
 
 /**
- * @swagger
+ * @openapi
  * /api/v1/kyc/admin/{id}/status:
  *   patch:
  *     tags: [KYC]
@@ -173,7 +204,12 @@ router.get('/admin/all', authenticate, authorize(UserRole.ADMIN), KYCController.
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/KYCResponse'
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 verification:
+ *                   $ref: '#/components/schemas/KYCResponse'
  *       401:
  *         description: Unauthorized
  *       403:

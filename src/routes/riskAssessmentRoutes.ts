@@ -7,15 +7,15 @@ import { UserRole } from '../models/User';
 const router = Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Risk Assessment
  *   description: Risk assessment management endpoints
  */
 
 /**
- * @swagger
- * /risk-assessment:
+ * @openapi
+ * /api/v1/risk-assessments:
  *   post:
  *     tags: [Risk Assessment]
  *     summary: Create a new risk assessment
@@ -33,7 +33,12 @@ const router = Router();
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/RiskAssessmentResponse'
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 assessment:
+ *                   $ref: '#/components/schemas/RiskAssessmentResponse'
  *       400:
  *         description: Invalid input data
  *       401:
@@ -42,14 +47,20 @@ const router = Router();
 router.post('/', authenticate, validate(schemas.riskAssessment.create), riskAssessmentController.createAssessment);
 
 /**
- * @swagger
- * /risk-assessment/my-assessments:
+ * @openapi
+ * /api/v1/risk-assessments/my-assessments:
  *   get:
  *     tags: [Risk Assessment]
  *     summary: List user's risk assessments
  *     security:
  *       - bearerAuth: []
  *     parameters:
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *           enum: [identity, address, employment, financial]
+ *         description: Filter by assessment type
  *       - in: query
  *         name: status
  *         schema:
@@ -77,20 +88,22 @@ router.post('/', authenticate, validate(schemas.riskAssessment.create), riskAsse
  *             schema:
  *               type: object
  *               properties:
- *                 data:
+ *                 assessments:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/RiskAssessmentResponse'
- *                 pagination:
- *                   $ref: '#/components/schemas/Pagination'
+ *                 total:
+ *                   type: integer
+ *                 pages:
+ *                   type: integer
  *       401:
  *         description: Unauthorized
  */
 router.get('/my-assessments', authenticate, riskAssessmentController.listUserAssessments);
 
 /**
- * @swagger
- * /risk-assessment/{id}:
+ * @openapi
+ * /api/v1/risk-assessments/{id}:
  *   get:
  *     tags: [Risk Assessment]
  *     summary: Get risk assessment details
@@ -102,6 +115,7 @@ router.get('/my-assessments', authenticate, riskAssessmentController.listUserAss
  *         required: true
  *         schema:
  *           type: string
+ *           format: uuid
  *         description: Risk assessment ID
  *     responses:
  *       200:
@@ -109,7 +123,10 @@ router.get('/my-assessments', authenticate, riskAssessmentController.listUserAss
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/RiskAssessmentResponse'
+ *               type: object
+ *               properties:
+ *                 assessment:
+ *                   $ref: '#/components/schemas/RiskAssessmentResponse'
  *       401:
  *         description: Unauthorized
  *       404:
@@ -118,8 +135,8 @@ router.get('/my-assessments', authenticate, riskAssessmentController.listUserAss
 router.get('/:id', authenticate, riskAssessmentController.getAssessment);
 
 /**
- * @swagger
- * /api/v1/risk-assessment/admin/all:
+ * @openapi
+ * /api/v1/risk-assessments/admin/all:
  *   get:
  *     tags: [Risk Assessment]
  *     summary: List all risk assessments (Admin only)
@@ -136,6 +153,7 @@ router.get('/:id', authenticate, riskAssessmentController.getAssessment);
  *         name: userId
  *         schema:
  *           type: string
+ *           format: uuid
  *         description: Filter by user ID
  *       - in: query
  *         name: page
@@ -158,12 +176,14 @@ router.get('/:id', authenticate, riskAssessmentController.getAssessment);
  *             schema:
  *               type: object
  *               properties:
- *                 data:
+ *                 assessments:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/RiskAssessmentResponse'
- *                 pagination:
- *                   $ref: '#/components/schemas/Pagination'
+ *                 total:
+ *                   type: integer
+ *                 pages:
+ *                   type: integer
  *       401:
  *         description: Unauthorized
  *       403:

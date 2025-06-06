@@ -8,15 +8,15 @@ import { UserRole } from '../models/User';
 const router = Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Users
  *   description: User management endpoints
  */
 
 /**
- * @swagger
- * /users/register:
+ * @openapi
+ * /api/v1/users/register:
  *   post:
  *     tags: [Users]
  *     summary: Register a new user
@@ -29,14 +29,23 @@ const router = Router();
  *     responses:
  *       201:
  *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 user:
+ *                   $ref: '#/components/schemas/UserResponse'
  *       400:
  *         description: Invalid input data
  */
 router.post('/register', apiLimiter, validate(schemas.user.create), userController.register);
 
 /**
- * @swagger
- * /users/login:
+ * @openapi
+ * /api/v1/users/login:
  *   post:
  *     tags: [Users]
  *     summary: Login user
@@ -64,8 +73,8 @@ router.post('/register', apiLimiter, validate(schemas.user.create), userControll
 router.post('/login', authLimiter, validate(schemas.user.login), userController.login);
 
 /**
- * @swagger
- * /users/me:
+ * @openapi
+ * /api/v1/users/me:
  *   get:
  *     tags: [Users]
  *     summary: Get current user profile
@@ -77,15 +86,18 @@ router.post('/login', authLimiter, validate(schemas.user.login), userController.
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/UserResponse'
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/UserResponse'
  *       401:
  *         description: Unauthorized
  */
 router.get('/me', authenticate, userController.getProfile);
 
 /**
- * @swagger
- * /users/me:
+ * @openapi
+ * /api/v1/users/me:
  *   put:
  *     tags: [Users]
  *     summary: Update user profile
@@ -100,14 +112,23 @@ router.get('/me', authenticate, userController.getProfile);
  *     responses:
  *       200:
  *         description: Profile updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 user:
+ *                   $ref: '#/components/schemas/UserResponse'
  *       401:
  *         description: Unauthorized
  */
 router.put('/me', authenticate, validate(schemas.user.update), userController.updateProfile);
 
 /**
- * @swagger
- * /users/me/password:
+ * @openapi
+ * /api/v1/users/me/password:
  *   patch:
  *     tags: [Users]
  *     summary: Change user password
@@ -122,14 +143,21 @@ router.put('/me', authenticate, validate(schemas.user.update), userController.up
  *     responses:
  *       200:
  *         description: Password updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
  *       401:
  *         description: Unauthorized
  */
 router.patch('/me/password', authenticate, validate(schemas.user.update), userController.changePassword);
 
 /**
- * @swagger
- * /users:
+ * @openapi
+ * /api/v1/users:
  *   get:
  *     tags: [Users]
  *     summary: List all users (Admin only)
@@ -169,12 +197,14 @@ router.patch('/me/password', authenticate, validate(schemas.user.update), userCo
  *             schema:
  *               type: object
  *               properties:
- *                 data:
+ *                 users:
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/UserResponse'
- *                 pagination:
- *                   $ref: '#/components/schemas/Pagination'
+ *                 total:
+ *                   type: integer
+ *                 pages:
+ *                   type: integer
  *       401:
  *         description: Unauthorized
  *       403:
@@ -183,31 +213,7 @@ router.patch('/me/password', authenticate, validate(schemas.user.update), userCo
 router.get('/', authenticate, authorize(UserRole.ADMIN), userController.listUsers);
 
 /**
- * @swagger
- * /api/v1/users/search:
- *   get:
- *     tags: [Users]
- *     summary: Search users (Admin only)
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: query
- *         schema:
- *           type: string
- *         description: Search query
- *     responses:
- *       200:
- *         description: Search results
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin access required
- */
-router.get('/search', authenticate, authorize(UserRole.ADMIN), userController.searchUsers);
-
-/**
- * @swagger
+ * @openapi
  * /api/v1/users/{id}/status:
  *   patch:
  *     tags: [Users]
@@ -220,6 +226,7 @@ router.get('/search', authenticate, authorize(UserRole.ADMIN), userController.se
  *         required: true
  *         schema:
  *           type: string
+ *           format: uuid
  *         description: User ID
  *     requestBody:
  *       required: true
@@ -230,6 +237,15 @@ router.get('/search', authenticate, authorize(UserRole.ADMIN), userController.se
  *     responses:
  *       200:
  *         description: Status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 user:
+ *                   $ref: '#/components/schemas/UserResponse'
  *       401:
  *         description: Unauthorized
  *       403:
@@ -238,7 +254,7 @@ router.get('/search', authenticate, authorize(UserRole.ADMIN), userController.se
 router.patch('/:id/status', authenticate, authorize(UserRole.ADMIN), userController.changeStatus);
 
 /**
- * @swagger
+ * @openapi
  * /api/v1/users/{id}/role:
  *   patch:
  *     tags: [Users]
@@ -251,6 +267,7 @@ router.patch('/:id/status', authenticate, authorize(UserRole.ADMIN), userControl
  *         required: true
  *         schema:
  *           type: string
+ *           format: uuid
  *         description: User ID
  *     requestBody:
  *       required: true
@@ -261,6 +278,15 @@ router.patch('/:id/status', authenticate, authorize(UserRole.ADMIN), userControl
  *     responses:
  *       200:
  *         description: Role updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 user:
+ *                   $ref: '#/components/schemas/UserResponse'
  *       401:
  *         description: Unauthorized
  *       403:
@@ -269,7 +295,7 @@ router.patch('/:id/status', authenticate, authorize(UserRole.ADMIN), userControl
 router.patch('/:id/role', authenticate, authorize(UserRole.ADMIN), userController.changeRole);
 
 /**
- * @swagger
+ * @openapi
  * /api/v1/users/{id}:
  *   delete:
  *     tags: [Users]
@@ -282,10 +308,18 @@ router.patch('/:id/role', authenticate, authorize(UserRole.ADMIN), userControlle
  *         required: true
  *         schema:
  *           type: string
+ *           format: uuid
  *         description: User ID
  *     responses:
  *       200:
  *         description: User deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
  *       401:
  *         description: Unauthorized
  *       403:
