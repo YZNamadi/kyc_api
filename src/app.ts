@@ -6,7 +6,6 @@ import { errorHandler, notFoundHandler } from './utils/errorHandler';
 import { stream, logger } from './utils/logger';
 import { checkRedisConnection } from './config/redis';
 import { setupRoutes } from './routes';
-import { specs, swaggerUi, swaggerUiOptions } from './config/swagger';
 
 const app = express();
 
@@ -14,31 +13,10 @@ const app = express();
 app.use(helmet({
   contentSecurityPolicy: false, // Disable CSP for Swagger UI
 }));
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://kyc-api-pf6f.onrender.com', 'http://localhost:3000']
-    : '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('combined', { stream }));
-
-// API base route
-app.get('/api/v1', (_req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.json({
-    status: 'ok',
-    message: 'KYC API is running',
-    version: '1.0.0',
-    documentation: '/api/docs'
-  });
-});
-
-// Swagger docs
-app.use('/api/docs', swaggerUi.serve);
-app.get('/api/docs', swaggerUi.setup(specs, swaggerUiOptions));
 
 // Routes
 setupRoutes(app);

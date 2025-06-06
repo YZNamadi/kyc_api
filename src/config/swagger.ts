@@ -34,7 +34,8 @@ const options = {
   },
   apis: [
     path.join(__dirname, '../routes/*.ts'),
-    path.join(__dirname, '../controllers/*.ts')
+    path.join(__dirname, '../controllers/*.ts'),
+    path.join(__dirname, '../routes/**/*.ts')
   ]
 };
 
@@ -49,7 +50,8 @@ const swaggerUiOptions = {
     persistAuthorization: true,
     docExpansion: 'list',
     filter: true,
-    showCommonExtensions: true
+    showCommonExtensions: true,
+    tryItOutEnabled: true
   }
 };
 
