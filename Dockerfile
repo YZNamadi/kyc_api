@@ -14,9 +14,11 @@ COPY . .
 # Build TypeScript code
 RUN npm run build
 
+# Verify build output exists
+RUN ls -la dist/
+
 # Remove source files and dev dependencies
-RUN rm -rf src && \
-    npm prune --production
+RUN npm prune --production
 
 # Expose port
 EXPOSE 3000
