@@ -8,11 +8,15 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 
-# Bundle app source
+# Copy source code
 COPY . .
 
 # Build TypeScript code
 RUN npm run build
+
+# Remove source files and dev dependencies
+RUN rm -rf src && \
+    npm prune --production
 
 # Expose port
 EXPOSE 3000
