@@ -3,7 +3,7 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 import path from 'path';
 
-// Load the base Swagger document
+// @ts-expect-error TS6133
 const swaggerDocument = YAML.load(path.join(__dirname, '../../docs/swagger.yaml'));
 
 // Update servers based on environment
@@ -18,14 +18,11 @@ const servers = [
 
 const options = {
   definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'KYC API Documentation',
-      version: '1.0.0',
-      description: 'API documentation for KYC verification and risk assessment',
-    },
+    ...swaggerDocument,
     servers,
+    openapi: '3.0.0',
     components: {
+      ...swaggerDocument.components,
       securitySchemes: {
         bearerAuth: {
           type: 'http',
