@@ -16,6 +16,10 @@ const options: swaggerJsdoc.Options = {
         url: 'http://localhost:3000/api/v1',
         description: 'Development server',
       },
+      {
+        url: 'https://kyc-api-pf6f.onrender.com',
+        description: 'Deployment server',
+      },
     ],
     components: {
       securitySchemes: {
